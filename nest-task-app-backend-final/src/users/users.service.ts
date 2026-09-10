@@ -1,10 +1,11 @@
-import { Injectable, Req, Res, UseGuards } from '@nestjs/common';
+import { Injectable, Req, Request, Res, UseGuards } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity.js';
 import { Repository } from 'typeorm';
 import bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UserDto } from './dto/user.dto.js';
+import { UsersGuard } from './users.guard.js';
 
 
 
@@ -34,12 +35,12 @@ export class UsersService {
         res.cookie('jwt', refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            // sameSite: 'strict',
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
 
         
-        let accessToken =  this.jwtService.sign(payload);
+        let accessToken =  this.jwtService.sign(payload, {expiresIn: '30s'});
         
         return {
             access_token: accessToken
@@ -48,7 +49,6 @@ export class UsersService {
 
 
     
-
 
     async loginUser(userDto : UserDto, @Res() res : any): Promise<any> {
         const user = await this.userRepository.findOneBy({ name: userDto.name });
@@ -60,14 +60,14 @@ export class UsersService {
             throw new Error('Invalid password');
         }
         const payload = { sub: user.id, name: user.name };
-        let accessToken = this.jwtService.sign(payload);
+        let accessToken = this.jwtService.sign(payload, {expiresIn: '30s'});
 
         let refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
 
-        res.cookie('jwt', refreshToken, {
+        res.cookie('refreshtoken', refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            // sameSite: 'strict',
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
 
@@ -76,10 +76,12 @@ export class UsersService {
         };
     }
 
-    async refreshToken(@Req() req: any): Promise<any> {
-        const refreshToken = req.cookies.jwt;
+    async refreshToken(@Request() req: any): Promise<any> {
+        let token = req.headers.cookie;
+        let refreshToken = token.split('=')[1];
+        
          if (!refreshToken) {
-            return { message: 'No refresh token provided' };
+            return { message: 'No refresh token' };
         }
         const payload = this.jwtService.verify(refreshToken);
         const newAccessToken = this.jwtService.sign(payload);

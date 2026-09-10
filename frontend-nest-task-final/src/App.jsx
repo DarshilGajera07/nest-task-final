@@ -1,8 +1,10 @@
-import Protected from './pages/Protected'
+import Navbar from './components/Navbar'
+import './pages/style.css'
 
 const App = () => {
   return (
     <>
+    <Navbar />
     </>
   )
 }

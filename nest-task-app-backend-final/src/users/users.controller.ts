@@ -1,7 +1,6 @@
-import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Request, Res} from '@nestjs/common';
 import { UsersService } from './users.service.js';
 import { UserDto } from './dto/user.dto.js';
-import { UsersGuard } from './users.guard.js';
 
 @Controller('users')
 export class UsersController {
@@ -18,8 +17,9 @@ export class UsersController {
     }
 
     @Post('refresh')
-    refreshToken(@Res() res : any) {
-        return this.userService.refreshToken(res);
+    refreshToken(@Request() req : any) {
+        
+        return this.userService.refreshToken(req);
     }
 
 

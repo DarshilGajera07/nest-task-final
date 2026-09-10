@@ -1,6 +1,5 @@
 
 import { Navigate, Outlet } from 'react-router'
-import Navbar from '../components/Navbar'
 
 const Protected = () => {
     const authenticated = localStorage.getItem('accessToken') !== null;

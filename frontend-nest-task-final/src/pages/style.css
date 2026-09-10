@@ -1,0 +1,84 @@
+.formbox {
+    background-color: aliceblue;
+    padding: 20px;
+    width: 30%;
+    border-radius: 5px;
+}
+
+.outer {
+    height: 100vh;
+    width: 100%;
+    background-color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.formcontainer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.formcontainer input {
+    height: 35px;
+    padding: 5px;
+}
+
+.taskform {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.taskformbox {
+    background-color: aliceblue;
+    padding: 20px;
+    margin: 20px;
+    border-radius: 15px;
+}
+
+.taskformbox input {
+    padding: 15px;
+    border-radius: 5px;
+    border: none;
+}
+
+.taskdatadiv {
+    display: flex;
+    gap: 5px;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.taskdatainner {
+    background-color: antiquewhite;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.taskdataouter {
+    display: flex;
+    gap: 5px;
+}
+
+.edit {
+    background-color: rgb(56, 117, 32);
+    padding: 5px 40px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+}
+
+.delete {
+    background-color: rgb(100, 25, 25);
+    padding: 5px 40px;
+    border: none;
+    border-radius: 5px;
+     color: white;
+     font-weight: bold;
+}
