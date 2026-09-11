@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UserDto } from './dto/user.dto.js';
-import { UsersGuard } from './users.guard.js';
+import { Response } from 'express';
 
 
 
@@ -13,10 +13,10 @@ import { UsersGuard } from './users.guard.js';
 export class UsersService {
     constructor(@InjectRepository(User) private readonly userRepository: Repository<User>, private readonly jwtService: JwtService) { }
 
-    async createUser(name: string, password: string, @Res() res : any): Promise<any> {
+    async createUser(name: string, password: string, res: Response): Promise<any> {
         const isUser = await this.userRepository.findOneBy({ name: name })
         console.log(isUser);
-        
+
 
         if (isUser) {
             throw new Error('User already exists');
@@ -25,32 +25,33 @@ export class UsersService {
         const saltOrRounds = 10;
         password = await bcrypt.hash(password, saltOrRounds);
 
-        const user =  this.userRepository.create({ name, password });
-        
-        await  this.userRepository.save(user);
-        const payload = { sub: user.id, name: user.name };
-        
+        const user = this.userRepository.create({ name, password });
 
-        let refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+        await this.userRepository.save(user);
+        const payload = { sub: user.id, name: user.name };
+
+
+        let refreshToken = this.jwtService.sign(payload, { expiresIn: '10s' });
+
+
         res.cookie('jwt', refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            // sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+            sameSite: 'none',
+            secure: false,
+            maxAge: 24 * 60 * 60 * 1000,
         });
 
-        
-        let accessToken =  this.jwtService.sign(payload, {expiresIn: '30s'});
-        
+        let accessToken = this.jwtService.sign(payload, { expiresIn: '5s' });
+
         return {
             access_token: accessToken
         };
     }
 
 
-    
 
-    async loginUser(userDto : UserDto, @Res() res : any): Promise<any> {
+
+    async loginUser(userDto: UserDto, res: Response): Promise<any> {
         const user = await this.userRepository.findOneBy({ name: userDto.name });
         if (!user) {
             throw new Error('User not found');
@@ -60,16 +61,16 @@ export class UsersService {
             throw new Error('Invalid password');
         }
         const payload = { sub: user.id, name: user.name };
-        let accessToken = this.jwtService.sign(payload, {expiresIn: '30s'});
+        let accessToken = this.jwtService.sign(payload, { expiresIn: '5s' });
 
-        let refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
-
-        res.cookie('refreshtoken', refreshToken, {
+        let refreshToken = this.jwtService.sign(payload, { expiresIn: '10s' });
+        res.cookie('jwt', refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            // sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+            sameSite: 'lax',
+            secure: false,
+            maxAge: 24 * 60 * 60 * 1000,
         });
+
 
         return {
             access_token: accessToken
@@ -79,10 +80,11 @@ export class UsersService {
     async refreshToken(@Request() req: any): Promise<any> {
         let token = req.headers.cookie;
         let refreshToken = token.split('=')[1];
-        
-         if (!refreshToken) {
+
+        if (!refreshToken) {
             return { message: 'No refresh token' };
         }
+
         const payload = this.jwtService.verify(refreshToken);
         const newAccessToken = this.jwtService.sign(payload);
         return {
@@ -90,5 +92,5 @@ export class UsersService {
         };
     }
 
- 
+
 }

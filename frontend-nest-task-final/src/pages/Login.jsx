@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import axios from 'axios'
 import { useNavigate } from 'react-router';
+import AxiosInstance from '../api/api.js'
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -10,7 +10,6 @@ const Login = () => {
 
   const navigate = useNavigate();
 
-  const [accessToken, setaccessToken] = useState(localStorage.getItem('token') || '');
 
   function handleChange(e) {
     const name = e.target.name;
@@ -25,8 +24,7 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://localhost:3000/users/login", formData);
-      setaccessToken(res.data.access_token);
+      const res = await AxiosInstance.post("http://localhost:3000/users/login", formData);
       localStorage.setItem('accessToken', res.data.access_token);
       navigate('/task');
     }

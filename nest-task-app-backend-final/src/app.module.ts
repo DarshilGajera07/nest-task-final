@@ -20,7 +20,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
       port: 5432,
       password: 'admin123',
       username: 'postgres',
-      entities: [Task,User], // here we have added user enitity in entities array
+      entities: [Task,User], 
       database: 'taskapp',
       synchronize: true,
       logging: true,

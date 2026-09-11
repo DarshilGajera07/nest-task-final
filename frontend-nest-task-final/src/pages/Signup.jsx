@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import axios from 'axios';
 import { useNavigate } from "react-router"
-
+import AxiosInstance from '../api/api';
 const Signup = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -25,7 +25,7 @@ const Signup = () => {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://localhost:3000/users/signup", formData);
+      const res = await AxiosInstance.post("http://localhost:3000/users/signup", formData);
       console.log(res.data);
       setaccessToken(res.data.access_token);
       localStorage.setItem('accessToken', res.data.access_token);

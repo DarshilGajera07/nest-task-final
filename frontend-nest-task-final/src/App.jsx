@@ -1,10 +1,10 @@
-import Navbar from './components/Navbar'
+import Taskopration from './pages/Taskopration'
 import './pages/style.css'
 
 const App = () => {
   return (
     <>
-    <Navbar />
+      <Taskopration />
     </>
   )
 }
