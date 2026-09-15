@@ -6,12 +6,13 @@ import bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UserDto } from './dto/user.dto.js';
 import { Response } from 'express';
+import { UserSession } from './entities/UserSession.entity.js';
 
 
 
 @Injectable()
 export class UsersService {
-    constructor(@InjectRepository(User) private readonly userRepository: Repository<User>, private readonly jwtService: JwtService) { }
+    constructor(@InjectRepository(User) private readonly userRepository: Repository<User>, private readonly jwtService: JwtService, @InjectRepository(UserSession) private readonly userSessionRepository: Repository<UserSession>,) { }
 
     async createUser(name: string, password: string, res: Response): Promise<any> {
         const isUser = await this.userRepository.findOneBy({ name: name })
@@ -27,11 +28,12 @@ export class UsersService {
 
         const user = this.userRepository.create({ name, password });
 
+
         await this.userRepository.save(user);
         const payload = { sub: user.id, name: user.name };
 
 
-        let refreshToken = this.jwtService.sign(payload, { expiresIn: '10s' });
+        let refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
 
 
         res.cookie('jwt', refreshToken, {
@@ -41,7 +43,8 @@ export class UsersService {
             maxAge: 24 * 60 * 60 * 1000,
         });
 
-        let accessToken = this.jwtService.sign(payload, { expiresIn: '5s' });
+        let accessToken = this.jwtService.sign(payload, { expiresIn: '1d' });
+
 
         return {
             access_token: accessToken
@@ -61,9 +64,9 @@ export class UsersService {
             throw new Error('Invalid password');
         }
         const payload = { sub: user.id, name: user.name };
-        let accessToken = this.jwtService.sign(payload, { expiresIn: '5s' });
+        let accessToken = this.jwtService.sign(payload, { expiresIn: '1d' });
 
-        let refreshToken = this.jwtService.sign(payload, { expiresIn: '10s' });
+        let refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
         res.cookie('jwt', refreshToken, {
             httpOnly: true,
             sameSite: 'lax',
@@ -71,11 +74,38 @@ export class UsersService {
             maxAge: 24 * 60 * 60 * 1000,
         });
 
+        const usersession = this.userSessionRepository.create({
+            userId: user.id,
+            accessToken: accessToken,
+            accessTokenExpires: "5s",
+            refreshAccessToken: refreshToken,
+            refreshAccessTokenExpires: "10s"
+        });
+
+        await this.userSessionRepository.save(usersession)
+
 
         return {
             access_token: accessToken
         };
     }
+
+
+    async logout(req: any, res: Response): Promise<any> {
+        const user = req['user'];
+
+        if (user && user.sub) {
+            await this.userSessionRepository.delete({ userId: user.sub });
+        }
+
+        res.clearCookie("jwt", {
+            httpOnly: true,
+            sameSite: "strict"
+        });
+
+        return res.status(200).json({ message: "Logout successful" });
+    }
+
 
     async refreshToken(@Request() req: any): Promise<any> {
         let token = req.headers.cookie;
@@ -91,6 +121,5 @@ export class UsersService {
             access_token: newAccessToken
         };
     }
-
 
 }

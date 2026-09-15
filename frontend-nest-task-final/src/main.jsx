@@ -17,14 +17,13 @@ let router = createBrowserRouter([
     Component: App,
   },
 
-  
 
   {
-    Component : Protected,
-    children : [
+    Component: Protected,
+    children: [
       {
-        path : "/task",
-        Component : Taskopration
+        path: "/task",
+        Component: Taskopration
       }
     ]
   },
@@ -39,8 +38,9 @@ let router = createBrowserRouter([
 
 ]);
 
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-     <RouterProvider router={router} />
+    <RouterProvider router={router} />
   </StrictMode>,
 )

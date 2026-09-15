@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import AxiosInstance from '../api/api.js'
+import { useNavigate } from "react-router"
+
 
 
 
 
 const Taskopration = () => {
 
-
+const navigate = useNavigate()
 
   const [formData, setFormData] = useState({
     title: '',
@@ -60,6 +61,14 @@ const Taskopration = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (formData.title == "") {
+      alert("Please Enter Title");
+      return
+    }
+    if (formData.description == "") {
+       alert("Please Enter Description");
+      return
+    }
     if (!editId) {
       await AxiosInstance.post("http://localhost:3000/tasks", formData);
     } else {
@@ -79,8 +88,16 @@ const Taskopration = () => {
     fetchData();
   }
 
+  async function logout() {
+    await AxiosInstance.post("http://localhost:3000/users/logout");
+    navigate("/login")
+  }
+
   return (
     <>
+    <div className="navbar">
+      <button onClick={logout}>Logout</button>
+    </div>
       <div className='taskformbox'>
         <h4>Enter Task Details   </h4>
         <form action="" onSubmit={handleSubmit} className='taskform'>

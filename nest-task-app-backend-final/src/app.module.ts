@@ -9,6 +9,7 @@ import { AuthController } from './auth/auth.controller.js';
 import { AuthModule } from './auth/auth.module.js';
 import { UsersModule } from './users/users.module.js';
 import { User } from './users/entities/user.entity.js';
+import { UserSession } from './users/entities/UserSession.entity.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -20,7 +21,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
       port: 5432,
       password: 'admin123',
       username: 'postgres',
-      entities: [Task,User], 
+      entities: [Task,User,UserSession], 
       database: 'taskapp',
       synchronize: true,
       logging: true,

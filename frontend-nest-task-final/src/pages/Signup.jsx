@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import axios from 'axios';
 import { useNavigate } from "react-router"
 import AxiosInstance from '../api/api';
 const Signup = () => {
